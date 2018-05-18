@@ -1,0 +1,209 @@
+//array notes
+
+arr.forEach(function(value, index, array)){
+
+}
+ //.forEach() always returns undefined but you could do
+
+----------------
+arr.map(function(val, index, array){
+  return val * 2;
+});
+
+//.map returns new array same length as array
+------------------------
+arr.filter(function(val, index, array){
+  return val > 2;
+});
+
+-----------
+arr.some(function(value, index, array){
+  return value < 2;
+});
+
+// .some returns true or false
+
+-------------
+
+arr.every(function(value, index, array){
+  return value > 5;
+});
+
+// .every returns true or false
+
+------------------
+
+arr.reduce(function(acc, next, index, array){
+
+}, optional_second_param);  //acc starts out as first value in array OR optional_second_param if provided
+
+//ex.
+var names = ['a', 'b', 'c', 'd'];
+names.reduce(function(acc, next){
+  return acc += ' ' + next;
+}, 'the names are');
+
+//ex.
+var arr = [5,4,1,5,4];
+
+arr.reduce(function(acc, next){
+    if(next in acc){
+      acc[next]++;
+    }else{
+      acc[next] = 1;
+    }
+    return acc;
+}, {});
+
+//ex.
+function sumOdds(arr){
+  return arr.reduce(function(acc, next){
+    if(next % 2 !== 0){
+      acc += next;
+    }
+    return acc;
+  }, 0);
+}
+// .reduce takes array and transforms it to another data struture
+----------------------------
+//closures
+function outer(){
+  var start = 'closures are';
+  return function inner(){
+    return start + ' ' + 'cool';
+  }
+}
+
+var cool = outer()(); //'closures are cool'
+
+//inner function has access to start variable even though outer function has returned
+//the inner function will only "remember" a variable from the outer function if that variable is used in the inner function
+// you can use closure to create a 'private' variable...
+function counter(){
+  var count = 0;
+  return function inner() {
+    count++;
+    return count;
+  }
+}
+
+var counter1 = counter();
+counter1(); //1
+counter1(); //2
+var counter2 = counter();
+counter2(); // 1...counter1 did not modify count variable
+
+-----------------------------------
+//this
+1. this determined by how a function is called (execution context); it gets set when a function is called;
+  -> every time function run the function gets argument and this keyword.
+2. four rules to determine this
+    1. 'this' will refer to the global object if it is just you know out there OR if
+        it is inside a function that is NOT inside an declared object. eg:
+        function cool(){
+          return this; //this refers to window
+        }
+        BUT if you "use strict" you get undefined (so you can't assign variable to global this)
+
+    2. 'this' is inside a declared object then 'this' takes on context of the nearest object eg
+        var person = {
+            firstname = 'Cool';
+            sayHi = function(){
+              return 'Way ' + this.firstname;
+            }
+        }
+        person.sayHi(); // "Way Cool";
+    3. explicit binding. call, apply, bind. to set 'this' in a function
+       call(thisArg, a, b, c,....)  is immediatley invoked
+       apply(thisArg, [a,b,c,...]) is invoked immediatley
+       bind(thisArg, a, b, c,.....) NOT invoked immediatley...returns a function definition
+
+       ex: write a function which accepts a function and max amount that function can be invoked...
+
+       function invokeMax(fun, num){
+         var max = 0;
+         return  function(){
+          if(max >= num){
+            return 'Maxed out, dude!';
+          }
+          max++;
+          return fn.apply(this, arguments); //this doesn't matter here it's a placeholder
+         }
+       }
+
+       thus if we have fun = function add(a,b) { return a + b} and we do
+       var cool = invokeMax(add, 3);
+       cool(2,3) //5
+       cool(5,7) //12
+       cool(13, 15) // 28
+       cool(0,1) // 'Maxed out, dude!'
+   4. The 'new' keyword....
+          .... then 'this' will refer to the object created
+          function Person(firstName, lastName){
+            this.firstName = firstName;
+            this.lastName = lastName;
+          }
+          var elie = new Person("Elie", "Schoppik");
+          elie.firstName; // "Elie"
+          elie.lastName; // "Schoppik"
+
+
+       new:
+         - creates empty object
+         - sets 'this' to be that empty object
+         - adds 'return this' to function
+         - add property __proto__ to the empty object which links the empty object to then
+            prototype property on the constructor function that created the empty object
+
+      suppose we have:
+        function Car(make, model, year){
+          this.make = make;
+          this.model = model;
+          this.year = year;
+          this.numwheels = 4;
+        }
+        And we want to resuse some of that code we do:
+        function Motorcycle(make, model, year){
+          Car.call(this, make, model, year);  //use call to set the 'this' to be Motorcycle object
+          this.numwheels = 2;
+        }
+        ...same as...
+        function Motorcycle(make, model, year){
+           Car.apply(this, [make, model, year]);
+           this.numwheels = 2;
+        }
+        ...same as...
+        function Motorcycle(){ //dont need args
+          Car.apply(this, arguments);
+          this.numwheels = 2;
+        }
+        note: arguments is not actually an array but is similar
+
+    PROTOTYPES
+      1. every constructor function has a property on it called "prototype".
+          "prototype" is an object.
+      2. the "prototype" object has a property on it called "constructor"
+          "constructor" points back to the constructor function
+      3. objects created via new + constructor() have a property called "__proto__"
+          "__proto__" links the newly created object to the prototype object on
+          the constructor function. ie obj.__proto__ === Obj.prototype is true
+          but note we say 'link' instead of 'copy' because then any time you add
+          to Obj.prototype all objects created from Obj get the addition
+
+    PROTOTYPE CHAIN
+     you say obj.x where 'x' is a property or method. Js first checks to see if that
+     method is on obj; if not, then it goes to obj __proto__ which is just looking at the properties / methods
+     on the prototype property of the constructor function. if the property / method not found on
+     the prototype then js will look at the __proto__ of the prototype...if that prototype
+     was created from a separate constructor...and so on...if never found then returns undefined.
+
+     eg:
+     function Person(name){
+      this.name = name;
+     }
+
+     Person.prototype.sayHi = function(){
+      return "Hi " + this.name;
+     }
+
+     note: to check if object created by a constructor do: person instanceof person
