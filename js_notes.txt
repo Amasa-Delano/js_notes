@@ -207,3 +207,33 @@ counter2(); // 1...counter1 did not modify count variable
      }
 
      note: to check if object created by a constructor do: person instanceof person
+
+
+     suppose we have:
+     function Person(first, last){
+     	this.first = first;
+     	this.last = last;
+     }
+
+     and then we do:
+     function Student(first, last){
+     	Person.apply(this, arguments);
+     }
+
+     now suppose we also do: Person.prototype.sayHi = function(){
+     	return 'Boo!!!';
+     }
+     and also: Student.prototype.sayHI = function(){
+     	return 'Boo!!!';
+     }
+     But that is redundant; how can we give Student() the Person() sayHi method?
+     	--> Student.prototype = Object.create(Person.prototype); // = prototypal inheritance
+     	Then if we do Student.prototype.status = function(){
+     		return 'Cool';
+     	}
+     	Student objects have status but Person objects don't (what we want)
+     	final step: Student.prototype.constructor = Student; //need to reset this property that was overwritten by Object.create...
+
+    -------------------
+    	ES2015
+    	
