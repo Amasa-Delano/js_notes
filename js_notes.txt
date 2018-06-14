@@ -237,3 +237,369 @@ counter2(); // 1...counter1 did not modify count variable
     -------------------
     	ES2015
     	
+	A. CONST: variables cannot be redefined; but if is an array or object, can add to it.
+	B. LET: has block scoping. 
+		hoisting --> a variable's declaration is moved to top of block. (and gets undefined for value). 
+		function cool(){                                      function cool(){
+		     return boo;             is equivalent to 		    var boo;
+		     var boo = 'boo';					    return boo;
+		}							    boo = 'boo';
+									}
+		Let variables get hoisted but they go into Temporal Dead Zone (?) and you can't access them so would get a reference error in
+		function cool(){
+			return boo;
+			let boo = 'boo'
+		}
+	C. Arrow functions
+		if you put function on one line don't need return keyword or {}, eg var add = (a,b) => a+b;
+			if you have only single parameter doesn't need (), eg var addThree = a => a + 3;
+		Arrow functions don't get own 'this'; 'this' is whatever value of 'this' is just outside of the function
+		Arrow functions don't get own 'arguments' keyword either 
+		Never use Arrow functions as methods in objects you will get wrong value of 'this'
+	D. Default Params, function add(a=10, b=20){
+				return a+b;
+			   }
+	E. For...of  iterate over arrays, strings, maps, sets (but not objects)
+		for(let val of arr){
+		   console.log(val);
+		}
+	F. Rest operator
+		function printMe(a,b,...c){
+			console.log(a);
+			console.log(b);
+			console.log(c);
+		}
+		printMe(1,2,3,4,5);
+		//1
+		//2
+		//[3,4,5]  extra params gathered up in an array
+	G. Spread operator
+		used on arrays to 'spread' each value out as a comma separated value
+		useful when you have array but you need comma separated values
+		suppose:
+			var arr1 = [1,2,3]
+			var arr2 = [4,5,6]
+			var arr3 = [7,8,9]
+			var all = arr1.concat(arr2).concat(arr3);  //ES5
+			var all = [...arr1, ...arr2, ...arr3]; //ES2015
+		spread can replace apply sometimes
+		eg Math.max() takes comma separated list. so you can't do Math.max(arr);
+		in ES5 Math.max.apply(this, arr);
+		in ES2015 Math.max(...arr);
+	H. Object enhancements
+		object shorthand notation. 
+			var first = 'boo';
+			var last = 'bug';
+			var obj = { 
+			   first,  //property and variables names same
+			   last
+			}
+		object methods.
+		    var obj = {
+			sayHi(){  //not arrow functions and not function keyword
+			  console.log('boo');
+			}	
+		    }
+		computed property names.
+			var first = 'boo';
+			var obj = {
+			    [first]: 'hi!!!'
+			}
+			then: obj.boo = 'hi!!!';
+			as opposed to var obj = {}
+				      obj[first] = 'hi!!!'
+	I. Destructuring = extracting values from data stored in objects / arrays
+		1. Objects
+			var instructor = {
+				first: "boo",
+				last: "bug',
+			}
+			var {first, last} = instructor;
+			first; //"boo"
+			last; //"bug"
+			can rename to: var {first:aa, last:bb} = instructor;
+			aa; //"boo"
+			bb; //"bug"
+			function cool({name = {first:"boo", last:"bug"}, iscool = true} = {}){
+				return [name.first, name.last, iscool];
+			}
+			function cool({name,color}){
+			   return [name, color];
+			}
+		2. Arrays
+			var arr = [1,2,3]
+			var [a,b,c] = arr;
+			a; //1
+			b; //2
+			c; //3
+			swapping values:
+				function swap(a,b){
+					return [a,b] = [b,a];
+				}
+
+-------------------
+class
+in ES5 object orientated we would have:
+
+function Student(first, last){
+  this.first = first;
+  this.last = last;
+}
+
+var cool = new Student('way', 'cool');
+
+in ES2015 we would have:
+class Student {
+  constructor(first, last){
+    this.first = first;
+    this.last = last;
+  }
+}
+
+var cool = new Student('way', 'cool');
+
+ES2015 way to add method to all instances created from the class:
+
+class Student {
+  constructor(first, last){
+    this.first = first;
+    this.last = last;
+  }
+  sayHello(){
+    retun "BOO!!!!"
+  }
+}
+
+class methods --> directly on constructor function; 
+in ES5 Student.iStudent = function(obj) {
+  return obj.constructor === Student;
+}
+in ES2015:
+class Student {
+  constructor(first, last){
+    this.first = first;
+    this.last = last;
+  }
+  sayHello(){
+    retun "BOO!!!!"
+  }
+  static isStudent(obj){
+    return obj.constructor === Student;
+  }
+}
+
+then create a new Student object s and do Student.isStudent(s);
+-------
+inheritance:
+
+ES5:
+function Person(first, last){
+  this.first = first;
+  this.last = last;
+}
+
+Person.prototype.sayHello(){
+  return "BOO!!!!";
+}
+
+function Student(first, last){
+  this.first = first;
+  this.last = last;
+}
+
+Student.prototype = Object.create(Person.prototype);
+Student.prototype.constructor = Student;
+
+in ES2015:
+
+class Person{
+  constructor(first, last){
+    this.first = first;
+    this.last = last;
+  }
+  sayHello(){
+    return "BOO!!!!":
+  }
+}
+
+class Student extends Person {
+  
+}
+
+Avoid duplication in ES2015 using Super
+in ES5 we avoid duplication by:
+
+function Person(first, last){
+  this.first = first;
+  this.last = last;
+}
+
+Person.prototype.sayHello(){
+  return "BOO!!!!"
+}
+
+function Student(){
+  Person.apply(this, arguments);
+}
+
+in ES2015:
+class Person{
+  constructor(first, last){
+    this.first = first;
+    this.last = last;
+  }
+  sayHello(){
+    return "BOO!!!!":
+  }
+}
+
+class Student extends Person {
+  constructor(first, last){
+    super(first, last);
+  }
+}
+
+------------
+MAPS
+var cool = new Map;
+cool.set(1, 'boo');
+cool.set(true, 'bug');
+cool.delete(1);
+cool.size //1
+cool.get(true)
+
+WeakMap ....all keys must be objects. cannot iterate over.
+
+Set
+
+WeakSet....all keys must be objects. cannot iterate over.
+
+-------
+Promises
+recall they are:
+- a one time guaranteed return of some future value
+- when that value is figured out the promise is resolved or rejected
+- use to refactor callback code
+- the returned value from a Promise always has a .then and a .catch method which 
+  are functions to be executed when proimse is resolved or rejected
+- if a .then method returns another Promise then you can chain the .then methods
+- Promise.all --> accepts an array of promises; if they all resolve, cool; but if one
+  is rejected the whole thing is rejected == 'fail fast'. If they resolve, you get
+  back an array of resolved promises in the right order
+
+  example: 
+  function getMovie(title){
+    return $.getJSON(`https://omdbapi.com?t=${title}&apikey=thewdb`);
+  }
+  var a = getMovie('a');
+  var b = getMovie('b');
+  var c = getMovie('c');
+
+  Promise.all([a,b,c]).then(function(movies){
+    return movies.forEach(function(value){
+      console.log(value.Year);
+    });
+  });
+
+-------
+Generators
+-- special kind of function you can pause execution and resume later
+-- create using a * 
+-- when invoked generator object is returned to us with keys of value and done
+
+function* pauseAndReturnvalues(num){
+  for(let i = 0; i < num; i++){
+    yield i;
+  }
+}
+
+var gen = pauseAndReturnValues(5);
+gen.next(); {value: 0, done: false}
+gen.next(); {value: 1, done: false}
+gen.next(); {value: 2, done: false}
+gen.next(); {value: 3, done: false}
+gen.next(); {value: 4, done: false}
+gen.next(); {value: undefined, done: true}
+
+you can iterate over generators
+
+async example:
+
+function* cool(name){
+  yield $.getJson(`https://omdbapi.com?t=${name}&apikey=thewdb`);
+}
+
+var dope = cool('cool');
+dope.next().value.then( val => console.log(val));
+----------
+var o = {name: "Cool"}
+var o2 = Object.assign({}, o);
+o2.name = "Dope"
+o.name //"Cool" -- didn't change
+
+----
+var z = [{cool: 'way'}, {cool: 'yeah'}, {cool: 'dope'}];
+
+z.find(function(val){
+  return val.name === 'dope';
+}); // {cool: 'dope'}
+
+------
+es2016: [].includes
+
+---
+es2017 methods:
+str.padStart, str.padEnd
+
+async functions
+async function first(){
+  return "COOL!!!!";
+}
+
+first(); //returns a promise
+first().then(val => console.log(val)); //"COOL!!!!"
+
+use the await keyword before a promise in an async function. this causes function to pause]
+until promise is resolved. allows for streamlining code to avoid call backs/the/yield. makes the code run synchronously
+
+ex.
+
+async function getData(){
+  var data = await $.getJSON('......');
+  console.log(data); //this line will not run until promise above is resolved
+}
+
+if the promise does not resolve an exception will be thrown so wrap in try block:
+
+async function getCool(cool){
+  try{
+    var response = await $.getJSON('.....');
+    console.log(response.name);
+  } catch(e){
+    console.log('not cool!!!');
+  }
+}
+
+if you are making multiple http requests with async here's how to send the requests in parallel and then await:
+
+async function getData(){
+  var a = $.getJSON('....');
+  var b = $.getJSON('....');
+
+  var aData = await a;
+  var bData = await b;
+}
+
+async function getAllData(a,b){
+  var all = await Promise.all([
+    $.getJSON('....a');
+    $.getJSON('....b');
+  ]);
+  console.log(all[0].cool);
+  console.log(all[1].cool);
+}
+
+-----
+object spread syntax: copy enumerable properties from one object to another
+const cat = {age: 4, name: cool}
+const kitten = {...cat, age:1}
